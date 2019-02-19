@@ -15,11 +15,17 @@ const clusters = [
     id: 'oneprovider-1',
     type: 'oneprovider',
   },
+  {
+    id: 'oneprovider-2',
+    type: 'oneprovider',
+  },
 ];
 
-const onezoneApp = express();
-const onezoneRouter = express.Router();
-onezoneApp.use(subdomain(onezoneId, onezoneRouter));
+const oneproviderFaviconData = fs.readFileSync(`${__dirname}/favicon.ico`);
+
+const serviceApp = express();
+const serviceRouter = express.Router();
+serviceApp.use(subdomain(onezoneId, serviceRouter));
 
 const onepanelApp = express();
 
@@ -28,7 +34,7 @@ const certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 
 const credentials = { key: privateKey, cert: certificate };
 
-onezoneRouter.get('/', (req, res) => {
+serviceRouter.get('/', (req, res) => {
   res.redirect(`/oz/${onezoneId}`);
 });
 
@@ -39,22 +45,40 @@ clusters.forEach((cluster) => {
 
   [servicePath, panelPath].forEach((path) => {
     const absPath = `/${path}`;
-    onezoneRouter.get(absPath, (req, res) => {
+    serviceRouter.get(absPath, (req, res) => {
       res.redirect(`${absPath}/i`);
     });
-    onezoneRouter.get(`${absPath}/i`, (req, res) => {
+    serviceRouter.get(`${absPath}/i`, (req, res) => {
       res.sendFile(`${staticRootDir}/${path}/index.html`);
     });
-    onezoneRouter.use(absPath, express.static(`${staticRootDir}/${path}`));
+    serviceRouter.use(absPath, express.static(`${staticRootDir}/${path}`));
   });
 
   const onepanelRouter = express.Router();
   onepanelApp.use(subdomain(cluster.id, onepanelRouter));
   onepanelRouter.use(express.static(`${staticRootDir}/${panelPath}`));
+
+  if (typeLetter === 'p') {
+    const oneproviderRouter = express.Router();
+    serviceApp.use(subdomain(cluster.id, oneproviderRouter));
+
+    serviceApp.get('/favicon.ico', (req, res) => {
+      res.contentType('image/x-icon');
+      res.end(oneproviderFaviconData);
+    });
+  }
 });
 
-const onezoneServer = https.createServer(credentials, onezoneApp);
-onezoneServer.listen(443);
+const logout = (req, res) => {
+  res.cookie('is-authenticated', 'false', { path: '/' });
+  res.send();
+};
+
+serviceApp.post('/logout', logout);
+onepanelApp.post('/logout', logout);
+
+const serviceServer = https.createServer(credentials, serviceApp);
+serviceServer.listen(443);
 
 const onepanelServer = https.createServer(credentials, onepanelApp);
 onepanelServer.listen(9443);
