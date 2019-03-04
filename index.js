@@ -66,6 +66,14 @@ clusters.forEach((cluster) => {
       res.contentType('image/x-icon');
       res.end(oneproviderFaviconData);
     });
+    serviceApp.get('/shares/:id', (req, res) => {
+      const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
+      res.redirect(`https://${onezoneDomain}/op/${cluster.id}/i#/public/shares/${req.params.id}`);
+    });
+    serviceApp.get('/', (req, res) => {
+      const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
+      res.redirect(`https://${onezoneDomain}/op/${cluster.id}`);
+    });
   }
 });
 
