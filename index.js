@@ -35,12 +35,12 @@ const certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
 serviceRouter.get('/', (req, res) => {
-  res.redirect(`/oz/${onezoneId}`);
+  res.redirect(`/ozw/${onezoneId}`);
 });
 
 clusters.forEach((cluster) => {
   const typeLetter = cluster.type[3];
-  const servicePath = `o${typeLetter}/${cluster.id}`;
+  const servicePath = `o${typeLetter}w/${cluster.id}`;
   const panelPath = `o${typeLetter}p/${cluster.id}`;
 
   [servicePath, panelPath].forEach((path) => {
@@ -68,11 +68,11 @@ clusters.forEach((cluster) => {
     });
     serviceApp.get('/shares/:id', (req, res) => {
       const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
-      res.redirect(`https://${onezoneDomain}/op/${cluster.id}/i#/public/shares/${req.params.id}`);
+      res.redirect(`https://${onezoneDomain}/opw/${cluster.id}/i#/public/shares/${req.params.id}`);
     });
     serviceApp.get('/', (req, res) => {
       const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
-      res.redirect(`https://${onezoneDomain}/op/${cluster.id}`);
+      res.redirect(`https://${onezoneDomain}/opw/${cluster.id}`);
     });
   }
 });
