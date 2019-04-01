@@ -9,6 +9,7 @@ pushd ozp
 popd
 pushd opp
   ln -s ../onepanel oneprovider-1
+  ln -s ../onepanel oneprovider-2
 popd
 echo "oz-worker" > ozw/onezone/index.html
 echo "op-worker" > opw/oneprovider-1/index.html
