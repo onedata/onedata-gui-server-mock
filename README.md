@@ -39,13 +39,12 @@ npm start
 
 You will have:
 
-- https://onezone.local-onedata.org/oz/onezone
-- https://onezone.local-onedata.org/ozp/onezone
+- https://onezone.local-onedata.org/ozw/onezone
+- https://onezone.local-onedata.org/onp/onezone
 - https://onezone.local-onedata.org:9443
-- https://onezone.local-onedata.org/op/oneprovider-1
-- https://onezone.local-onedata.org/opp/oneprovider-1
+- https://onezone.local-onedata.org/opw/oneprovider-1
+- https://onezone.local-onedata.org/onp/oneprovider-1
 - https://oneprovider-1.local-onedata.org:9443
-- https://oneprovider-1.local-onedata.org/favicon.ico
 
 # Development
 
