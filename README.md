@@ -16,6 +16,8 @@ Add these to `/etc/hosts`:
 ```
 127.0.0.1 onezone.local-onedata.org
 127.0.0.1 oneprovider-1.local-onedata.org
+127.0.0.1 oneprovider-2.local-onedata.org
+127.0.0.1 oneprovider-3.local-onedata.org
 ```
 
 ## Build GUIs
@@ -23,11 +25,11 @@ Add these to `/etc/hosts`:
 Build:
 
 - `onezone-gui` -> `onedata-gui-static/oz/onezone/`
-- `op-gui-default` -> `onedata-gui-static/op/oneprovider-1/`
-- `onepanel-gui` -> `onedata-gui-static/onepanel` (oz-panel and op-panel)
+- `op-gui-default` -> `onedata-gui-static/oneprovider-common
+- `onepanel-gui` -> `onedata-gui-static/onepanel-common` (oz-panel and op-panel)
 
 You can make symlink to one `onepanel-gui` build for `oz-panel` and `op-panel`,
-as described in start of this readme. So 
+as described in start of this readme.
 
 ## Install and use
 
@@ -43,8 +45,14 @@ You will have:
 - https://onezone.local-onedata.org/onp/onezone
 - https://onezone.local-onedata.org:9443
 - https://onezone.local-onedata.org/opw/oneprovider-1
+- https://onezone.local-onedata.org/opw/oneprovider-2
+- https://onezone.local-onedata.org/opw/oneprovider-3
 - https://onezone.local-onedata.org/onp/oneprovider-1
+- https://onezone.local-onedata.org/onp/oneprovider-2
+- https://onezone.local-onedata.org/onp/oneprovider-3
 - https://oneprovider-1.local-onedata.org:9443
+- https://oneprovider-2.local-onedata.org:9443
+- https://oneprovider-3.local-onedata.org:9443
 
 # Development
 
