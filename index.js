@@ -33,6 +33,10 @@ const clusters = [
     id: 'oneprovider-2',
     type: 'oneprovider',
   },
+  {
+    id: 'oneprovider-3',
+    type: 'oneprovider',
+  },
 ];
 
 const handleEmergencyContext = (req, res) => {
