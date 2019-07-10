@@ -24,10 +24,12 @@ const clusters = [
   {
     id: onezoneId,
     type: 'onezone',
+    onepanelProxy: true,
   },
   {
     id: 'oneprovider-1',
     type: 'oneprovider',
+    onepanelProxy: true,
   },
   {
     id: 'oneprovider-2',
@@ -39,17 +41,22 @@ const clusters = [
   },
 ];
 
+/**
+ * @param {Express.Request} req
+ * @param {Express.Reponse} res
+ */
 const handleEmergencyContext = (req, res) => {
   const { hostname } = req;
   const parsedHostname = hostnameRegex.exec(hostname);
   if (parsedHostname) {
     const clusterId = parsedHostname[1];
+    const suffix = (req.url.startsWith('/onepanel') ? '/onepanel' : ':9443');
     res.send({
       guiMode: 'emergency',
       serviceType: 'onepanel',
       clusterType: clusters.find(c => c.id === clusterId).type,
       clusterId,
-      origin: `https://${hostname}:9443`,
+      apiOrigin: `https://${hostname}${suffix}`,
     });
   } else {
     res.sendStatus(404).send();
@@ -63,12 +70,18 @@ const handleHostedContext = (req, res) => {
     const clusterId = parsedPath[2];
     const onezoneDomainWithPort = parsedHostname[2];
     const isOnepanel = (parsedPath[1] === onepanelAbbrev);
+    const cluster = clusters.find(c => c.id === clusterId);
+    const { onepanelProxy: proxy, type: clusterType } = cluster;
+    let suffix = '';
+    if (isOnepanel) {
+      suffix = proxy ? '/onepanel' : ':9443';
+    }
     res.send({
       guiMode: 'unified',
       serviceType: isOnepanel ? 'onepanel' : 'worker',
-      clusterType: clusters.find(c => c.id === clusterId).type,
+      clusterType,
       clusterId,
-      origin: `https://${clusterId}.${onezoneDomainWithPort}${isOnepanel ? ':9443' : ''}`,
+      apiOrigin: `https://${clusterId}.${onezoneDomainWithPort}${suffix}`,
     });
   } else {
     res.sendStatus(404).send();
@@ -104,9 +117,16 @@ clusters.forEach((cluster) => {
   // ./gui-context method handling eg. https://onezone.local-onedata.org/ozw/onezone/gui-context
   serviceRouter.get(`/${servicePath}/${guiContextMethodName}`, handleHostedContext);
   serviceRouter.get(`/${panelPath}/${guiContextMethodName}`, handleHostedContext);
+  if (cluster.onepanelProxy) {
+    serviceRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
+  }
   onepanelRouter.get(`/${guiContextMethodName}`, handleEmergencyContext);
 
-  [servicePath, panelPath].forEach((path) => {
+  [
+    servicePath,
+    panelPath,
+    ...(cluster.onepanelProxy ? ['onepanel'] : []),
+  ].forEach((path) => {
     const absPath = `/${path}`;
     serviceRouter.get(absPath, (req, res) => {
       res.redirect(`${absPath}/i`);
@@ -120,6 +140,17 @@ clusters.forEach((cluster) => {
   if (typeLetter === 'p') {
     const oneproviderRouter = express.Router();
     serviceApp.use(subdomain(cluster.id, oneproviderRouter));
+    // Onepanel served from Oneprovider subdomain with proxy prefix
+    if (cluster.onepanelProxy) {
+      oneproviderRouter.get('/onepanel', (req, res) => {
+        res.redirect('/onepanel/i');
+      });
+      oneproviderRouter.get('/onepanel/i', (req, res) => {
+        res.sendFile(`${staticRootDir}/onepanel/index.html`);
+      });
+      oneproviderRouter.use('/onepanel', express.static(`${staticRootDir}/onepanel`));
+      oneproviderRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
+    }
 
     serviceApp.get('/favicon.ico', (req, res) => {
       res.contentType('image/x-icon');
