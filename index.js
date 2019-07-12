@@ -41,6 +41,19 @@ const clusters = [
   },
 ];
 
+const testImageData = fs.readFileSync(`${__dirname}/favicon.ico`);
+
+function getTestImagePath(type) {
+  return `/api/v3/${type}/test_image`;
+}
+
+function addTestImageServing(server, type, prefix = '') {
+  server.get(prefix + getTestImagePath(type), (req, res) => {
+    res.contentType('image/x-icon');
+    res.end(testImageData);
+  });
+}
+
 /**
  * @param {Express.Request} req
  * @param {Express.Reponse} res
@@ -56,7 +69,7 @@ const handleEmergencyContext = (req, res) => {
       serviceType: 'onepanel',
       clusterType: clusters.find(c => c.id === clusterId).type,
       clusterId,
-      apiOrigin: `https://${hostname}${suffix}`,
+      apiOrigin: `${hostname}${suffix}`,
     });
   } else {
     res.sendStatus(404).send();
@@ -81,14 +94,12 @@ const handleHostedContext = (req, res) => {
       serviceType: isOnepanel ? 'onepanel' : 'worker',
       clusterType,
       clusterId,
-      apiOrigin: `https://${clusterId}.${onezoneDomainWithPort}${suffix}`,
+      apiOrigin: `${clusterId}.${onezoneDomainWithPort}${suffix}`,
     });
   } else {
     res.sendStatus(404).send();
   }
 };
-
-const oneproviderFaviconData = fs.readFileSync(`${__dirname}/favicon.ico`);
 
 const serviceApp = express();
 const serviceRouter = express.Router();
@@ -119,9 +130,10 @@ clusters.forEach((cluster) => {
   serviceRouter.get(`/${panelPath}/${guiContextMethodName}`, handleHostedContext);
   if (cluster.onepanelProxy) {
     serviceRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
+    addTestImageServing(serviceRouter, 'onepanel', '/onepanel');
   }
   onepanelRouter.get(`/${guiContextMethodName}`, handleEmergencyContext);
-
+  addTestImageServing(onepanelRouter, 'onepanel');
   [
     servicePath,
     panelPath,
@@ -150,12 +162,9 @@ clusters.forEach((cluster) => {
       });
       oneproviderRouter.use('/onepanel', express.static(`${staticRootDir}/onepanel`));
       oneproviderRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
+      addTestImageServing(oneproviderRouter, 'onepanel', '/onepanel');
     }
-
-    serviceApp.get('/favicon.ico', (req, res) => {
-      res.contentType('image/x-icon');
-      res.end(oneproviderFaviconData);
-    });
+    addTestImageServing(serviceApp, 'oneprovider');
     serviceApp.get('/shares/:id', (req, res) => {
       const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
       res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}/i#/public/shares/${req.params.id}`);
