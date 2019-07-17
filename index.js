@@ -84,17 +84,13 @@ const handleHostedContext = (req, res) => {
     const onezoneDomainWithPort = parsedHostname[2];
     const isOnepanel = (parsedPath[1] === onepanelAbbrev);
     const cluster = clusters.find(c => c.id === clusterId);
-    const { onepanelProxy: proxy, type: clusterType } = cluster;
-    let suffix = '';
-    if (isOnepanel) {
-      suffix = proxy ? '/onepanel' : ':9443';
-    }
+    const { type: clusterType } = cluster;
     res.send({
       guiMode: 'unified',
       serviceType: isOnepanel ? 'onepanel' : 'worker',
       clusterType,
       clusterId,
-      apiOrigin: `${clusterId}.${onezoneDomainWithPort}${suffix}`,
+      apiOrigin: `${clusterId}.${onezoneDomainWithPort}`,
     });
   } else {
     res.sendStatus(404).send();
