@@ -19,6 +19,7 @@ const pathRegex = /\/(.*?)\/(.*?)\/(.*)/;
 const onepanelAbbrev = 'onp';
 const oneproviderAbbrev = 'opw';
 const guiContextMethodName = 'gui-context';
+const browserDebugLogs = true;
 
 const clusters = [
   {
@@ -69,6 +70,7 @@ const handleEmergencyContext = (req, res) => {
       serviceType: 'onepanel',
       clusterType: clusters.find(c => c.id === clusterId).type,
       clusterId,
+      browserDebugLogs,
       apiOrigin: `${hostname}${suffix}`,
     });
   } else {
@@ -90,6 +92,7 @@ const handleHostedContext = (req, res) => {
       serviceType: isOnepanel ? 'onepanel' : 'worker',
       clusterType,
       clusterId,
+      browserDebugLogs,
       apiOrigin: `${clusterId}.${onezoneDomainWithPort}`,
     });
   } else {
