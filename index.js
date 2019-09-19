@@ -12,7 +12,8 @@ const subdomain = require('express-subdomain');
 const https = require('https');
 const fs = require('fs');
 
-const staticRootDir = `${__dirname}/static/onedata-gui-static`;
+const staticDir = `${__dirname}/static`;
+const staticRootDir = `${staticDir}/onedata-gui-static`;
 const onezoneId = 'onezone';
 const hostnameRegex = /(.*?)\.(.*)/;
 const pathRegex = /\/(.*?)\/(.*?)\/(.*)/;
@@ -172,6 +173,9 @@ clusters.forEach((cluster) => {
       const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
       res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}`);
     });
+    serviceApp.get('/download/test-file.txt', (req, res) => {
+      res.download(`${staticDir}/download/test-file.txt`);
+    });
   }
 });
 
@@ -184,7 +188,7 @@ serviceApp.post('/logout', logout);
 onepanelApp.post('/logout', logout);
 
 const serviceServer = https.createServer(credentials, serviceApp);
-serviceServer.listen(443);
+serviceServer.listen(443, '0.0.0.0');
 
 const onepanelServer = https.createServer(credentials, onepanelApp);
-onepanelServer.listen(9443);
+onepanelServer.listen(9443, '0.0.0.0');
