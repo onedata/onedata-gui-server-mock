@@ -21,6 +21,7 @@ const onepanelAbbrev = 'onp';
 const oneproviderAbbrev = 'opw';
 const guiContextMethodName = 'gui-context';
 const browserDebugLogs = true;
+const publicDevelopment = false;
 
 const clusters = [
   {
@@ -103,6 +104,13 @@ const handleHostedContext = (req, res) => {
 
 const serviceApp = express();
 const serviceRouter = express.Router();
+
+// allow to use IP
+if (publicDevelopment) {
+  serviceApp.use(serviceRouter);
+}
+
+
 serviceApp.use(subdomain(onezoneId, serviceRouter));
 
 const onepanelApp = express();
@@ -188,7 +196,7 @@ serviceApp.post('/logout', logout);
 onepanelApp.post('/logout', logout);
 
 const serviceServer = https.createServer(credentials, serviceApp);
-serviceServer.listen(443, '0.0.0.0');
+serviceServer.listen(443, publicDevelopment ? '0.0.0.0' : undefined);
 
 const onepanelServer = https.createServer(credentials, onepanelApp);
-onepanelServer.listen(9443, '0.0.0.0');
+onepanelServer.listen(9443, publicDevelopment ? '0.0.0.0' : undefined);
