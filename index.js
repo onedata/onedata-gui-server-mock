@@ -137,8 +137,7 @@ clusters.forEach((cluster) => {
   serviceRouter.get(`/${servicePath}/${guiContextMethodName}`, handleHostedContext);
   serviceRouter.get(`/${panelPath}/${guiContextMethodName}`, handleHostedContext);
   if (cluster.onepanelProxy) {
-    serviceRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
-    addTestImageServing(serviceRouter, 'onepanel', '/onepanel');
+    addTestImageServing(serviceRouter, 'onepanel');
   }
   onepanelRouter.get(`/${guiContextMethodName}`, handleEmergencyContext);
   addTestImageServing(onepanelRouter, 'onepanel');
@@ -160,17 +159,8 @@ clusters.forEach((cluster) => {
   if (typeLetter === 'p') {
     const oneproviderRouter = express.Router();
     serviceApp.use(subdomain(cluster.id, oneproviderRouter));
-    // Onepanel served from Oneprovider subdomain with proxy prefix
     if (cluster.onepanelProxy) {
-      oneproviderRouter.get('/onepanel', (req, res) => {
-        res.redirect('/onepanel/i');
-      });
-      oneproviderRouter.get('/onepanel/i', (req, res) => {
-        res.sendFile(`${staticRootDir}/onepanel/index.html`);
-      });
-      oneproviderRouter.use('/onepanel', express.static(`${staticRootDir}/onepanel`));
-      oneproviderRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
-      addTestImageServing(oneproviderRouter, 'onepanel', '/onepanel');
+      addTestImageServing(oneproviderRouter, 'onepanel');
     }
     addTestImageServing(serviceApp, 'oneprovider');
     serviceApp.get('/shares/:id', (req, res) => {
