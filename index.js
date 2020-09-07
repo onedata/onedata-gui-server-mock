@@ -3,7 +3,7 @@
  * See README.md for details.
  *
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -12,14 +12,17 @@ const subdomain = require('express-subdomain');
 const https = require('https');
 const fs = require('fs');
 
-const staticRootDir = `${__dirname}/static/onedata-gui-static`;
+const staticDir = `${__dirname}/static`;
+const staticRootDir = `${staticDir}/onedata-gui-static`;
 const onezoneId = 'onezone';
 const hostnameRegex = /(.*?)\.(.*)/;
 const pathRegex = /\/(.*?)\/(.*?)\/(.*)/;
+const onezoneAbbrev = 'ozw';
 const onepanelAbbrev = 'onp';
 const oneproviderAbbrev = 'opw';
 const guiContextMethodName = 'gui-context';
 const browserDebugLogs = true;
+const publicDevelopment = true;
 
 const clusters = [
   {
@@ -102,6 +105,13 @@ const handleHostedContext = (req, res) => {
 
 const serviceApp = express();
 const serviceRouter = express.Router();
+
+// allow to use IP
+if (publicDevelopment) {
+  serviceApp.use(serviceRouter);
+}
+
+
 serviceApp.use(subdomain(onezoneId, serviceRouter));
 
 const onepanelApp = express();
@@ -128,8 +138,7 @@ clusters.forEach((cluster) => {
   serviceRouter.get(`/${servicePath}/${guiContextMethodName}`, handleHostedContext);
   serviceRouter.get(`/${panelPath}/${guiContextMethodName}`, handleHostedContext);
   if (cluster.onepanelProxy) {
-    serviceRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
-    addTestImageServing(serviceRouter, 'onepanel', '/onepanel');
+    addTestImageServing(serviceRouter, 'onepanel');
   }
   onepanelRouter.get(`/${guiContextMethodName}`, handleEmergencyContext);
   addTestImageServing(onepanelRouter, 'onepanel');
@@ -151,28 +160,27 @@ clusters.forEach((cluster) => {
   if (typeLetter === 'p') {
     const oneproviderRouter = express.Router();
     serviceApp.use(subdomain(cluster.id, oneproviderRouter));
-    // Onepanel served from Oneprovider subdomain with proxy prefix
     if (cluster.onepanelProxy) {
-      oneproviderRouter.get('/onepanel', (req, res) => {
-        res.redirect('/onepanel/i');
-      });
-      oneproviderRouter.get('/onepanel/i', (req, res) => {
-        res.sendFile(`${staticRootDir}/onepanel/index.html`);
-      });
-      oneproviderRouter.use('/onepanel', express.static(`${staticRootDir}/onepanel`));
-      oneproviderRouter.get(`/onepanel/${guiContextMethodName}`, handleEmergencyContext);
-      addTestImageServing(oneproviderRouter, 'onepanel', '/onepanel');
+      addTestImageServing(oneproviderRouter, 'onepanel');
     }
     addTestImageServing(serviceApp, 'oneprovider');
-    serviceApp.get('/shares/:id', (req, res) => {
-      const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
-      res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}/i#/public/shares/${req.params.id}`);
-    });
     serviceApp.get('/', (req, res) => {
       const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
       res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}`);
     });
+
+    ['txt', 'bin', 'zip', 'json', 'xls', 'docx', 'xlsx', 'tar.gz'].forEach((extension) => {
+      const path = `/download/test-file.${extension}`;
+      serviceApp.get(path, (req, res) => {
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.download(`${staticDir}${path}`);
+      });
+    });
   }
+});
+
+serviceApp.get('/shares/:id', (req, res) => {
+  res.redirect(`https://${req.hostname}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`);
 });
 
 const logout = (req, res) => {
@@ -184,7 +192,7 @@ serviceApp.post('/logout', logout);
 onepanelApp.post('/logout', logout);
 
 const serviceServer = https.createServer(credentials, serviceApp);
-serviceServer.listen(443);
+serviceServer.listen(443, publicDevelopment ? '0.0.0.0' : undefined);
 
 const onepanelServer = https.createServer(credentials, onepanelApp);
-onepanelServer.listen(9443);
+onepanelServer.listen(9443, publicDevelopment ? '0.0.0.0' : undefined);
