@@ -3,7 +3,7 @@
  * See README.md for details.
  *
  * @author Jakub Liput
- * @copyright (C) 2019 ACK CYFRONET AGH
+ * @copyright (C) 2019-2020 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -17,11 +17,12 @@ const staticRootDir = `${staticDir}/onedata-gui-static`;
 const onezoneId = 'onezone';
 const hostnameRegex = /(.*?)\.(.*)/;
 const pathRegex = /\/(.*?)\/(.*?)\/(.*)/;
+const onezoneAbbrev = 'ozw';
 const onepanelAbbrev = 'onp';
 const oneproviderAbbrev = 'opw';
 const guiContextMethodName = 'gui-context';
 const browserDebugLogs = true;
-const publicDevelopment = false;
+const publicDevelopment = true;
 
 const clusters = [
   {
@@ -163,18 +164,23 @@ clusters.forEach((cluster) => {
       addTestImageServing(oneproviderRouter, 'onepanel');
     }
     addTestImageServing(serviceApp, 'oneprovider');
-    serviceApp.get('/shares/:id', (req, res) => {
-      const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
-      res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}/i#/public/shares/${req.params.id}`);
-    });
     serviceApp.get('/', (req, res) => {
       const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
       res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}`);
     });
-    serviceApp.get('/download/test-file.txt', (req, res) => {
-      res.download(`${staticDir}/download/test-file.txt`);
+
+    ['txt', 'bin', 'zip', 'json', 'xls', 'docx', 'xlsx', 'tar.gz'].forEach((extension) => {
+      const path = `/download/test-file.${extension}`;
+      serviceApp.get(path, (req, res) => {
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.download(`${staticDir}${path}`);
+      });
     });
   }
+});
+
+serviceApp.get('/shares/:id', (req, res) => {
+  res.redirect(`https://${req.hostname}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`);
 });
 
 const logout = (req, res) => {
