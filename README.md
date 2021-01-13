@@ -15,9 +15,9 @@ Add these to `/etc/hosts`:
 
 ```
 127.0.0.1 onezone.local-onedata.org
-127.0.0.1 oneprovider-1.local-onedata.org
-127.0.0.1 oneprovider-2.local-onedata.org
-127.0.0.1 oneprovider-3.local-onedata.org
+127.0.0.1 oneprovider1.local-onedata.org
+127.0.0.1 oneprovider2.local-onedata.org
+127.0.0.1 oneprovider3.local-onedata.org
 ```
 
 ## Build GUIs
@@ -44,15 +44,15 @@ You will have:
 - https://onezone.local-onedata.org/ozw/onezone
 - https://onezone.local-onedata.org/onp/onezone
 - https://onezone.local-onedata.org:9443
-- https://onezone.local-onedata.org/opw/oneprovider-1
-- https://onezone.local-onedata.org/opw/oneprovider-2
-- https://onezone.local-onedata.org/opw/oneprovider-3
-- https://onezone.local-onedata.org/onp/oneprovider-1
-- https://onezone.local-onedata.org/onp/oneprovider-2
-- https://onezone.local-onedata.org/onp/oneprovider-3
-- https://oneprovider-1.local-onedata.org:9443
-- https://oneprovider-2.local-onedata.org:9443
-- https://oneprovider-3.local-onedata.org:9443
+- https://onezone.local-onedata.org/opw/oneprovider1
+- https://onezone.local-onedata.org/opw/oneprovider2
+- https://onezone.local-onedata.org/opw/oneprovider3
+- https://onezone.local-onedata.org/onp/oneprovider1
+- https://onezone.local-onedata.org/onp/oneprovider2
+- https://onezone.local-onedata.org/onp/oneprovider3
+- https://oneprovider1.local-onedata.org:9443
+- https://oneprovider2.local-onedata.org:9443
+- https://oneprovider3.local-onedata.org:9443
 
 # Development
 

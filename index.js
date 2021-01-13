@@ -31,16 +31,16 @@ const clusters = [
     onepanelProxy: true,
   },
   {
-    id: 'oneprovider-1',
+    id: 'oneprovider1',
     type: 'oneprovider',
     onepanelProxy: true,
   },
   {
-    id: 'oneprovider-2',
+    id: 'oneprovider2',
     type: 'oneprovider',
   },
   {
-    id: 'oneprovider-3',
+    id: 'oneprovider3',
     type: 'oneprovider',
   },
 ];
@@ -105,13 +105,9 @@ const handleHostedContext = (req, res) => {
 
 const serviceApp = express();
 const serviceRouter = express.Router();
-
-// allow to use IP
-if (publicDevelopment) {
-  serviceApp.use(serviceRouter);
-}
-
-
+// support for serving Onezone on pure IP
+serviceApp.use(serviceRouter);
+// support for serving Onezone on "onezone" subdomain
 serviceApp.use(subdomain(onezoneId, serviceRouter));
 
 const onepanelApp = express();
@@ -122,7 +118,7 @@ const certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
 serviceRouter.get('/', (req, res) => {
-  res.redirect(`/ozw/${onezoneId}`);
+  res.redirect(`/${onezoneAbbrev}/${onezoneId}`);
 });
 
 clusters.forEach((cluster) => {
@@ -164,6 +160,10 @@ clusters.forEach((cluster) => {
       addTestImageServing(oneproviderRouter, 'onepanel');
     }
     addTestImageServing(serviceApp, 'oneprovider');
+    serviceApp.get('/shares/:id', (req, res) => {
+      const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
+      res.redirect(`https://${onezoneDomain}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`);
+    });
     serviceApp.get('/', (req, res) => {
       const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
       res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}`);
