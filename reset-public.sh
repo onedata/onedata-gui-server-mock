@@ -3,17 +3,17 @@ rm -rf onedata-gui-static
 mkdir onedata-gui-static
 cd onedata-gui-static
 
-mkdir -p ozw/onezone opw onp onepanel onepanel-common oneprovider-common
+mkdir -p ozw/onezone opw onp onepanel-common oneprovider-common
 pushd onp
   ln -s ../onepanel-common onezone
-  ln -s ../onepanel-common oneprovider-1
-  ln -s ../onepanel-common oneprovider-2
-  ln -s ../onepanel-common oneprovider-3
+  ln -s ../onepanel-common oneprovider1
+  ln -s ../onepanel-common oneprovider2
+  ln -s ../onepanel-common oneprovider3
 popd
 pushd opw
-  ln -s ../oneprovider-common oneprovider-1
-  ln -s ../oneprovider-common oneprovider-2
-  ln -s ../oneprovider-common oneprovider-3
+  ln -s ../oneprovider-common oneprovider1
+  ln -s ../oneprovider-common oneprovider2
+  ln -s ../oneprovider-common oneprovider3
 popd
 # proxied onepanel
 ln -s onepanel-common onepanel
