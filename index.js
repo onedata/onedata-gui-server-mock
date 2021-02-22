@@ -23,6 +23,9 @@ const oneproviderAbbrev = 'opw';
 const guiContextMethodName = 'gui-context';
 const browserDebugLogs = true;
 const publicDevelopment = true;
+const generalDomain = 'local-onedata.org';
+const onezoneDomain = `${onezoneId}.${generalDomain}`;
+const onezoneName = 'My Onezone';
 
 const clusters = [
   {
@@ -49,6 +52,25 @@ const testImageData = fs.readFileSync(`${__dirname}/favicon.ico`);
 
 function getTestImagePath(type) {
   return `/api/v3/${type}/test_image`;
+}
+
+function addClusterConfigurationServing(server) {
+  const path = '/api/v3/onepanel/configuration';
+  server.get(path, (req, res) => {
+    const clusterId = hostnameRegex.exec(req.connection.servername)[1];
+    const isOneprovider = clusterId !== onezoneId;
+    res.setHeader('Access-Control-Allow-Origin', `https://${onezoneDomain}`);
+    res.send({
+      zoneName: isOneprovider ? undefined : onezoneName,
+      zoneDomain: onezoneDomain,
+      version: '20.02.6',
+      serviceType: isOneprovider ? 'oneprovider' : 'onezone',
+      deployed: true,
+      isRegistered: isOneprovider ? true : undefined,
+      clusterId,
+      build: '0-g35594fbc',
+    });
+  });
 }
 
 function addTestImageServing(server, type, prefix = '') {
@@ -161,11 +183,9 @@ clusters.forEach((cluster) => {
     }
     addTestImageServing(serviceApp, 'oneprovider');
     serviceApp.get('/shares/:id', (req, res) => {
-      const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
       res.redirect(`https://${onezoneDomain}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`);
     });
     serviceApp.get('/', (req, res) => {
-      const onezoneDomain = req.hostname.replace(cluster.id, onezoneId);
       res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}`);
     });
 
@@ -176,6 +196,8 @@ clusters.forEach((cluster) => {
         res.download(`${staticDir}${path}`);
       });
     });
+  } else {
+    addClusterConfigurationServing(serviceApp);
   }
 });
 
