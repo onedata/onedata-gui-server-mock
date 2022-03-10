@@ -214,7 +214,7 @@ serviceApp.post('/logout', logout);
 onepanelApp.post('/logout', logout);
 
 const serviceServer = https.createServer(credentials, serviceApp);
-serviceServer.listen(443, publicDevelopment ? '0.0.0.0' : undefined);
+serviceServer.listen(9192, publicDevelopment ? '0.0.0.0' : undefined);
 
 const onepanelServer = https.createServer(credentials, onepanelApp);
 onepanelServer.listen(9443, publicDevelopment ? '0.0.0.0' : undefined);
