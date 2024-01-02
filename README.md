@@ -25,7 +25,7 @@ Add these to `/etc/hosts`:
 Build:
 
 - `onezone-gui` -> `onedata-gui-static/oz/onezone/`
-- `op-gui-default` -> `onedata-gui-static/oneprovider-common
+- `op-gui-default` -> `onedata-gui-static/oneprovider-common`
 - `onepanel-gui` -> `onedata-gui-static/onepanel-common` (oz-panel and op-panel)
 
 You can make symlink to one `onepanel-gui` build for `oz-panel` and `op-panel`,
@@ -41,15 +41,15 @@ npm start
 
 You will have:
 
-- https://onezone.local-onedata.org/ozw/onezone
-- https://onezone.local-onedata.org/onp/onezone
+- https://onezone.local-onedata.org:9192/ozw/onezone
+- https://onezone.local-onedata.org:9192/onp/onezone
 - https://onezone.local-onedata.org:9443
-- https://onezone.local-onedata.org/opw/oneprovider1
-- https://onezone.local-onedata.org/opw/oneprovider2
-- https://onezone.local-onedata.org/opw/oneprovider3
-- https://onezone.local-onedata.org/onp/oneprovider1
-- https://onezone.local-onedata.org/onp/oneprovider2
-- https://onezone.local-onedata.org/onp/oneprovider3
+- https://onezone.local-onedata.org:9192/opw/oneprovider1
+- https://onezone.local-onedata.org:9192/opw/oneprovider2
+- https://onezone.local-onedata.org:9192/opw/oneprovider3
+- https://onezone.local-onedata.org:9192/onp/oneprovider1
+- https://onezone.local-onedata.org:9192/onp/oneprovider2
+- https://onezone.local-onedata.org:9192/onp/oneprovider3
 - https://oneprovider1.local-onedata.org:9443
 - https://oneprovider2.local-onedata.org:9443
 - https://oneprovider3.local-onedata.org:9443
