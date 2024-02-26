@@ -3,7 +3,7 @@
  * See README.md for details.
  *
  * @author Jakub Liput
- * @copyright (C) 2019-2020 ACK CYFRONET AGH
+ * @copyright (C) 2019-2024 ACK CYFRONET AGH
  * @license This software is released under the MIT license cited in 'LICENSE.txt'.
  */
 
@@ -26,6 +26,8 @@ const publicDevelopment = true;
 const generalDomain = 'local-onedata.org';
 const onezoneDomain = `${onezoneId}.${generalDomain}`;
 const onezoneName = 'My Onezone';
+const servicePort = 9192;
+const emergencyPanelPort = 9443;
 
 const clusters = [
   {
@@ -183,10 +185,14 @@ clusters.forEach((cluster) => {
     }
     addTestImageServing(serviceApp, 'oneprovider');
     serviceApp.get('/shares/:id', (req, res) => {
-      res.redirect(`https://${onezoneDomain}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`);
+      res.redirect(
+        `https://${onezoneDomain}:${servicePort}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`,
+      );
     });
     serviceApp.get('/', (req, res) => {
-      res.redirect(`https://${onezoneDomain}/${oneproviderAbbrev}/${cluster.id}`);
+      res.redirect(
+        `https://${onezoneDomain}:${servicePort}/${oneproviderAbbrev}/${cluster.id}`,
+      );
     });
 
     ['txt', 'bin', 'zip', 'json', 'xls', 'docx', 'xlsx', 'tar.gz'].forEach((extension) => {
@@ -202,7 +208,9 @@ clusters.forEach((cluster) => {
 });
 
 serviceApp.get('/shares/:id', (req, res) => {
-  res.redirect(`https://${req.hostname}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`);
+  res.redirect(
+    `https://${req.hostname}:${servicePort}/${onezoneAbbrev}/${onezoneId}/i#/public/shares/${req.params.id}`,
+  );
 });
 
 const logout = (req, res) => {
@@ -214,7 +222,7 @@ serviceApp.post('/logout', logout);
 onepanelApp.post('/logout', logout);
 
 const serviceServer = https.createServer(credentials, serviceApp);
-serviceServer.listen(9192, publicDevelopment ? '0.0.0.0' : undefined);
+serviceServer.listen(servicePort, publicDevelopment ? '0.0.0.0' : undefined);
 
 const onepanelServer = https.createServer(credentials, onepanelApp);
-onepanelServer.listen(9443, publicDevelopment ? '0.0.0.0' : undefined);
+onepanelServer.listen(emergencyPanelPort, publicDevelopment ? '0.0.0.0' : undefined);
